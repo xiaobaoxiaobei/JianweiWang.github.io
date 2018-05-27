@@ -21,6 +21,9 @@ kubernetes架构中，Service是对一组提供相同功能pod的抽象。Servic
   <br/>
 
 ### headless 服务
+headless服务是指不需要ClusterIP的服务，在创建服务时指定```spec.clusterIP=None```, 包括两类：
+  * 不指定selectors，但设置externalName；
+  * 不指定selectors，通过A记录设置后段endpoint列表；
 
 ## Service Discovery
 

@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Terminus">
 <meta property="og:description" content="Introduction本文探究kubernetes架构中，服务发现的具体工作原理，涉及到service定义、服务发现与coredns，kube-proxy工作原理等。 Servicekubernetes架构中，Service是对一组提供相同功能pod的抽象。Service通过标签选取服务后端。Service有四种类型：  ClusterIP: 默认类型，为服务自动分配一个虚拟ip，该ip仅集群内">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-05-27T17:50:55.874Z">
+<meta property="og:updated_time" content="2018-05-27T22:17:40.687Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Service And Kube-proxy">
 <meta name="twitter:description" content="Introduction本文探究kubernetes架构中，服务发现的具体工作原理，涉及到service定义、服务发现与coredns，kube-proxy工作原理等。 Servicekubernetes架构中，Service是对一组提供相同功能pod的抽象。Service通过标签选取服务后端。Service有四种类型：  ClusterIP: 默认类型，为服务自动分配一个虚拟ip，该ip仅集群内">
@@ -313,7 +313,12 @@
 <li>如果不指定selector，可以自己定义endpoint，需要创建一个和Service同名的Endpoints资源，在endpoint中配置指定的ip和端口；</li>
 <li>还有一种情况不需要指定selectors，就是通过DNS CNAME方式把服务转发到指定的域名；<br><br></li>
 </ul>
-<h3 id="headless-服务"><a href="#headless-服务" class="headerlink" title="headless 服务"></a>headless 服务</h3><h2 id="Service-Discovery"><a href="#Service-Discovery" class="headerlink" title="Service Discovery"></a>Service Discovery</h2><h2 id="DNS-in-kubernetes"><a href="#DNS-in-kubernetes" class="headerlink" title="DNS in kubernetes"></a>DNS in kubernetes</h2><h2 id="Kube-proxy"><a href="#Kube-proxy" class="headerlink" title="Kube-proxy"></a>Kube-proxy</h2><h2 id="CoreDNS"><a href="#CoreDNS" class="headerlink" title="CoreDNS"></a>CoreDNS</h2><h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2>
+<h3 id="headless-服务"><a href="#headless-服务" class="headerlink" title="headless 服务"></a>headless 服务</h3><p>headless服务是指不需要ClusterIP的服务，在创建服务时指定<code>spec.clusterIP=None</code>, 包括两类：</p>
+<ul>
+<li>不指定selectors，但设置externalName；</li>
+<li>不指定selectors，通过A记录设置后段endpoint列表；</li>
+</ul>
+<h2 id="Service-Discovery"><a href="#Service-Discovery" class="headerlink" title="Service Discovery"></a>Service Discovery</h2><h2 id="DNS-in-kubernetes"><a href="#DNS-in-kubernetes" class="headerlink" title="DNS in kubernetes"></a>DNS in kubernetes</h2><h2 id="Kube-proxy"><a href="#Kube-proxy" class="headerlink" title="Kube-proxy"></a>Kube-proxy</h2><h2 id="CoreDNS"><a href="#CoreDNS" class="headerlink" title="CoreDNS"></a>CoreDNS</h2><h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2>
       
     </div>
     
