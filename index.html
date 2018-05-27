@@ -454,7 +454,7 @@
 <li>Node网络和容器网络的连接器，overlay网络，一般flannel负责管理；</li>
 </ul>
 <p>三层网络的结构下图：</p>
-<p><img src="/Network-Model-in-Kubernetes-6c165903.png" alt=""></p>
+<p><img src="Network-Model-in-Kubernetes-6c165903.png" alt=""></p>
 <p><center>kubernetes网络结构</center><br><br><br><br></p>
 <p>其中，docker0是Node内部不通pod间的默认路由，pod的IP地址从docker0动态分配；flannel负责overylay网络维护，把docker0内的私网和Node节点的网络打通；GateWay则是Node网络中的默认路由，负责物理网络数据包转发。</p>
 <h3 id="开源网络组件Flannel"><a href="#开源网络组件Flannel" class="headerlink" title="开源网络组件Flannel"></a>开源网络组件Flannel</h3><p>在kubernetes中，flannel的左右有以下两点：</p>
