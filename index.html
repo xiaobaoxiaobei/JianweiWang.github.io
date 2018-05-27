@@ -300,7 +300,15 @@
       
         
           
-            
+            <h2 id="网络模型概况"><a href="#网络模型概况" class="headerlink" title="网络模型概况"></a>网络模型概况</h2><p>kubernetes集群的网络分为三层：</p>
+<ul>
+<li>集群物理网络，即Node节点所属网络；</li>
+<li>Node内部的容器网络，一般是docker0网卡负责管理；</li>
+<li>Node网络和容器网络的连接器，overlay网络；</li>
+</ul>
+<p>三层网络的结构下图：</p>
+<p><img src="assets/Network-Model-in-Kubernetes-0ff825c5.png" alt=""></p>
+
           
         
       
