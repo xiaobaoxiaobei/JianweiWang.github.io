@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="网络模型概况kubernetes集群的网络分为三层：  集群物理网络，即Node节点所属网络； Node内部的容器网络，一般是docker0网卡负责管理； Node网络和容器网络的连接器，overlay网络；  三层网络的结构下图：">
+<meta name="description" content="网络模型概况kubernetes的网络需求 容器间直接通信 同一个pod中，不通容器共享一个网络命名空间，可以直接通过localhost通信。  pod间的通信 同一个Node内，不同的Pod都有一个全局IP，可以直接通过Pod的IP进行通信。Pod地址和docker0在同一个网段  pod到service的通信 pod到service的通信通过kube-proxy实现，底层通过修改iptable">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Network Model in Kubernetes">
 <meta property="og:url" content="https://github.com/JianweiWang/JianweiWang.github.io/blob/master/2018/05/27/Network-Model-in-Kubernetes/index.html">
 <meta property="og:site_name" content="ZhengJi">
-<meta property="og:description" content="网络模型概况kubernetes集群的网络分为三层：  集群物理网络，即Node节点所属网络； Node内部的容器网络，一般是docker0网卡负责管理； Node网络和容器网络的连接器，overlay网络；  三层网络的结构下图：">
+<meta property="og:description" content="网络模型概况kubernetes的网络需求 容器间直接通信 同一个pod中，不通容器共享一个网络命名空间，可以直接通过localhost通信。  pod间的通信 同一个Node内，不同的Pod都有一个全局IP，可以直接通过Pod的IP进行通信。Pod地址和docker0在同一个网段  pod到service的通信 pod到service的通信通过kube-proxy实现，底层通过修改iptable">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="https://github.com/JianweiWang/JianweiWang.github.io/blob/master/2018/05/27/Network-Model-in-Kubernetes/Network-Model-in-Kubernetes-0ff825c5.png">
-<meta property="og:updated_time" content="2018-05-27T12:29:40.649Z">
+<meta property="og:image" content="https://github.com/JianweiWang/JianweiWang.github.io/blob/master/2018/05/27/Network-Model-in-Kubernetes/Network-Model-in-Kubernetes-042a3582.png">
+<meta property="og:updated_time" content="2018-05-27T12:50:20.043Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Network Model in Kubernetes">
-<meta name="twitter:description" content="网络模型概况kubernetes集群的网络分为三层：  集群物理网络，即Node节点所属网络； Node内部的容器网络，一般是docker0网卡负责管理； Node网络和容器网络的连接器，overlay网络；  三层网络的结构下图：">
-<meta name="twitter:image" content="https://github.com/JianweiWang/JianweiWang.github.io/blob/master/2018/05/27/Network-Model-in-Kubernetes/Network-Model-in-Kubernetes-0ff825c5.png">
+<meta name="twitter:description" content="网络模型概况kubernetes的网络需求 容器间直接通信 同一个pod中，不通容器共享一个网络命名空间，可以直接通过localhost通信。  pod间的通信 同一个Node内，不同的Pod都有一个全局IP，可以直接通过Pod的IP进行通信。Pod地址和docker0在同一个网段  pod到service的通信 pod到service的通信通过kube-proxy实现，底层通过修改iptable">
+<meta name="twitter:image" content="https://github.com/JianweiWang/JianweiWang.github.io/blob/master/2018/05/27/Network-Model-in-Kubernetes/Network-Model-in-Kubernetes-042a3582.png">
 
 
 
@@ -301,14 +301,35 @@
       
 
       
-        <h2 id="网络模型概况"><a href="#网络模型概况" class="headerlink" title="网络模型概况"></a>网络模型概况</h2><p>kubernetes集群的网络分为三层：</p>
+        <h2 id="网络模型概况"><a href="#网络模型概况" class="headerlink" title="网络模型概况"></a>网络模型概况</h2><h3 id="kubernetes的网络需求"><a href="#kubernetes的网络需求" class="headerlink" title="kubernetes的网络需求"></a>kubernetes的网络需求</h3><ul>
+<li><p>容器间直接通信</p>
+<p>同一个pod中，不通容器共享一个网络命名空间，可以直接通过localhost通信。</p>
+</li>
+<li><p>pod间的通信</p>
+<p>同一个Node内，不同的Pod都有一个全局IP，可以直接通过Pod的IP进行通信。Pod地址和docker0在同一个网段</p>
+</li>
+<li><p>pod到service的通信</p>
+<p>pod到service的通信通过kube-proxy实现，底层通过修改iptables规则实现，后文具体介绍。</p>
+</li>
+<li><p>集群外部与内部组件的通信</p>
+<p>通过NodePort或者Ingress实现；</p>
+</li>
+</ul>
+<h3 id="kubernetes网络结构"><a href="#kubernetes网络结构" class="headerlink" title="kubernetes网络结构"></a>kubernetes网络结构</h3><p>kubernetes集群的网络分为三层：</p>
 <ul>
 <li>集群物理网络，即Node节点所属网络；</li>
 <li>Node内部的容器网络，一般是docker0网卡负责管理；</li>
 <li>Node网络和容器网络的连接器，overlay网络；</li>
 </ul>
 <p>三层网络的结构下图：</p>
-<p><img src="Network-Model-in-Kubernetes-0ff825c5.png" alt=""></p>
+<p><img src="Network-Model-in-Kubernetes-042a3582.png" alt=""></p>
+<p>如上图所示：不同Node内的pod互相通信需要Node的网卡进行转发，不同Node间pod直接通信需要两个条件：</p>
+<ul>
+<li>pod IP做整体规划，整个kubernetes集群内的pod IP不能有冲突，一般通过第三方开源工具管理，如flannel</li>
+<li>将Node IP与该Node内的pod IP关联起来，通过Node IP转发到pod IP</li>
+</ul>
+<p>1、图中，pod0和pod1的IP是有docker网桥分配，两个pod间通信经过docker0网关转发；</p>
+<p>2、pod0和pod2通信，经过docker0到flannel再到eth0, 然后经过gateway到pod2所在主机，经过eth0、flannel、docker0最终到达pod2；</p>
 
       
     </div>
@@ -459,7 +480,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#网络模型概况"><span class="nav-number">1.</span> <span class="nav-text">网络模型概况</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#网络模型概况"><span class="nav-number">1.</span> <span class="nav-text">网络模型概况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kubernetes的网络需求"><span class="nav-number">1.1.</span> <span class="nav-text">kubernetes的网络需求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kubernetes网络结构"><span class="nav-number">1.2.</span> <span class="nav-text">kubernetes网络结构</span></a></li></ol></li></ol></div>
             
 
           </div>
